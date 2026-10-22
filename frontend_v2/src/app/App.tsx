@@ -4,7 +4,7 @@ import { ChatInput } from './components/ChatInput';
 import { BookOpen, GraduationCap, Sparkles, Upload, X } from 'lucide-react';
 import { FileUpload } from './components/FileUpload';
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
+const API_BASE_URL = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'https://harry-backend-api-5slf.onrender.com').replace(/\/$/, '');
 
 interface Message {
   id: string;
