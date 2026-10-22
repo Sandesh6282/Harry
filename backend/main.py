@@ -93,7 +93,7 @@ allow_origins = [origin.strip() for origin in frontend_origins.split(",") if ori
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origin_regex=r"https://.*(\.onrender\.com|\.vercel\.app)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
