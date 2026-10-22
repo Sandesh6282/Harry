@@ -9,6 +9,17 @@ from langchain_community.retrievers import BM25Retriever
 from langchain_cohere import CohereRerank
 from dotenv import load_dotenv
 import os
+import re
+
+def clean_response(text: str) -> str:
+    """Clean up markdown responses by removing redundant divider symbols and trailing spacing."""
+    if not text:
+        return text
+    # Remove lines consisting solely of 3 or more hyphens, asterisks, or underscores used as decorative dividers
+    text = re.sub(r'^[ \t]*[-*_]{3,}[ \t]*$', '', text, flags=re.MULTILINE)
+    # Collapse 3 or more consecutive newlines into 2
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
 
 try:
     from . import vectorstore_handler
@@ -69,8 +80,12 @@ def retrieve_answer(query: str, session_id: str):
         "- Break down complex topics step-by-step\n"
         "- When relevant, mention real-world applications\n"
         "- If a concept has mathematical notation, explain it intuitively first, then formally\n"
-        "- Use bullet points and structured formatting for clarity\n"
+        "- Use clear bullet points and clean structured formatting\n"
         "- Encourage the student by being warm and supportive\n\n"
+        "Formatting & Style Rules:\n"
+        "- Use clean, readable Markdown: standard headers (###) for major sections, bold terms for emphasis, and simple bullet points.\n"
+        "- Do NOT use decorative symbols, repetitive divider lines (e.g., '---' or '***'), or excessive asterisks.\n"
+        "- Ensure lists and bullet points are concise and directly readable.\n\n"
         "Rules:\n"
         "- ONLY answer from the provided context (course notes).\n"
         "- If the answer is not in the context, say: \"I couldn't find this in your course notes. "
@@ -92,5 +107,8 @@ def retrieve_answer(query: str, session_id: str):
     rag_chain = create_retrieval_chain(retriever, question_answer_chain)
 
     result = rag_chain.invoke({"input": query})
+
+    if "answer" in result and isinstance(result["answer"], str):
+        result["answer"] = clean_response(result["answer"])
 
     return result
